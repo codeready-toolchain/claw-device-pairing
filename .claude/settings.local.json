@@ -52,7 +52,13 @@
       "Bash(./bin/claw-device-pairing serve *)",
       "Bash(pkill -SIGINT claw-device-pairing)",
       "Bash(ENV=development ./bin/claw-device-pairing serve)",
-      "Bash(pkill -SIGTERM claw-device-pairing)"
+      "Bash(pkill -SIGTERM claw-device-pairing)",
+      "Bash(podman images *)",
+      "Bash(podman run *)",
+      "Bash(podman logs *)",
+      "Bash(podman exec *)",
+      "Bash(podman stop *)",
+      "Bash(podman rm *)"
     ]
   }
 }
