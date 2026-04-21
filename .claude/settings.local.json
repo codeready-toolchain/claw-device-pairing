@@ -48,7 +48,11 @@
       "Bash(mv lib/device-identity/storage.js lib/device-identity/storage.ts)",
       "Bash(mv lib/pairing/handshake.js lib/pairing/handshake.ts)",
       "Bash(npm info *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(./bin/claw-device-pairing serve *)",
+      "Bash(pkill -SIGINT claw-device-pairing)",
+      "Bash(ENV=development ./bin/claw-device-pairing serve)",
+      "Bash(pkill -SIGTERM claw-device-pairing)"
     ]
   }
 }
