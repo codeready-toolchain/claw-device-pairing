@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -34,6 +35,8 @@ var (
 	}
 )
 
+const uiBuildDir = "ui/dist"
+
 func init() {
 	// Add --port flag to serve command
 	serveCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port to run the server on")
@@ -49,6 +52,12 @@ func runServer(cmd *cobra.Command, args []string) {
 	// Validate port range
 	if port < 1 || port > 65535 {
 		slog.Error("invalid port number", "port", port, "valid_range", "1-65535")
+		os.Exit(1)
+	}
+
+	// Validate UI build directory exists
+	if _, err := os.Stat(uiBuildDir); os.IsNotExist(err) {
+		slog.Error("UI build directory not found", "path", uiBuildDir)
 		os.Exit(1)
 	}
 
@@ -70,13 +79,39 @@ func runServer(cmd *cobra.Command, args []string) {
 	// Add request logging middleware
 	e.Use(middleware.RequestLogger())
 
-	// Register POST /pair-device route
+	// Register API routes
 	e.POST("/pair-device", pairingHandler.HandlePairDevice)
-
-	// Health check endpoint
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
+
+	// Serve UI from /pair-device path
+	uiHandler := func(c *echo.Context) error {
+		// Get the request path and strip the /pair-device prefix
+		path := c.Request().URL.Path
+		if path == "/pair-device" {
+			path = "/"
+		} else if len(path) > len("/pair-device") && path[:len("/pair-device")+1] == "/pair-device/" {
+			path = path[len("/pair-device"):]
+		} else {
+			// Path doesn't start with /pair-device, should not happen
+			return c.File(filepath.Join(uiBuildDir, "index.html"))
+		}
+
+		filePath := filepath.Join(uiBuildDir, path)
+
+		// Check if file exists
+		if info, err := os.Stat(filePath); err == nil && !info.IsDir() {
+			return c.File(filePath)
+		}
+
+		// For directories or missing files, serve index.html (SPA fallback)
+		return c.File(filepath.Join(uiBuildDir, "index.html"))
+	}
+
+	// Register UI routes
+	e.GET("/pair-device", uiHandler)
+	e.GET("/pair-device/*", uiHandler)
 
 	// Create http.Server for graceful shutdown support
 	addr := fmt.Sprintf(":%d", port)

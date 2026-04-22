@@ -58,7 +58,9 @@
       "Bash(podman logs *)",
       "Bash(podman exec *)",
       "Bash(podman stop *)",
-      "Bash(podman rm *)"
+      "Bash(podman rm *)",
+      "Bash(bin/server serve *)",
+      "Bash(pkill *)"
     ]
   }
 }
