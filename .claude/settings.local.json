@@ -60,7 +60,9 @@
       "Bash(podman stop *)",
       "Bash(podman rm *)",
       "Bash(bin/server serve *)",
-      "Bash(pkill *)"
+      "Bash(pkill *)",
+      "WebFetch(domain:localhost)",
+      "Bash(openspec sync *)"
     ]
   }
 }

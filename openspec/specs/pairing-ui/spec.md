@@ -1,5 +1,7 @@
-## ADDED Requirements
+## Purpose
 
+This specification defines the user interface for device pairing with the OpenClaw system. It establishes the structure, components, and visual presentation of the web-based pairing interface using React and Patternfly.
+## Requirements
 ### Requirement: UI Directory Structure
 The system SHALL create a `ui/` directory at the project root with a standard Vite + React project structure.
 
@@ -23,15 +25,15 @@ The application SHALL display a single Patternfly Card component as the main UI 
 - **THEN** the card shows a CardTitle with text "Device Pairing"
 
 ### Requirement: Pairing Status Display
-The card body SHALL display a "Pairing device..." message with a loading indicator.
+The card body SHALL display a progress stepper showing the stages of device pairing.
 
-#### Scenario: Pairing message is shown
+#### Scenario: Stepper replaces simple message
 - **WHEN** the application renders
-- **THEN** the card body displays the text "Pairing device..."
+- **THEN** the card body displays a Stepper component instead of just "Pairing device..." text
 
-#### Scenario: Loading spinner is visible
-- **WHEN** the pairing message is displayed
-- **THEN** a Patternfly Spinner component with size "md" is shown
+#### Scenario: Loading spinner is removed
+- **WHEN** the card body is displayed
+- **THEN** no Spinner component is shown (replaced by the Stepper)
 
 ### Requirement: Patternfly Styling
 The application SHALL import and apply Patternfly base CSS styles.
@@ -84,3 +86,30 @@ The application SHALL use an HTML file as the entry point with proper meta tags.
 #### Scenario: HTML file includes module script
 - **WHEN** `index.html` is loaded
 - **THEN** it includes `<script type="module" src="/src/main.jsx"></script>`
+
+### Requirement: Dynamic Content Based on Handshake State
+The card body SHALL display different content based on the current handshake state.
+
+#### Scenario: Loading state content
+- **WHEN** the handshake is in progress (loading state)
+- **THEN** a loading message or spinner is displayed in the card body
+
+#### Scenario: Success state content
+- **WHEN** the handshake succeeds
+- **THEN** the ProgressStepper is displayed with the first step marked as complete
+
+#### Scenario: Error state content
+- **WHEN** the handshake fails
+- **THEN** an error message is displayed instead of the ProgressStepper
+
+### Requirement: State-Driven Rendering
+The application SHALL use React state to control UI rendering based on handshake lifecycle.
+
+#### Scenario: UseEffect for handshake
+- **WHEN** the App component mounts
+- **THEN** a useEffect hook triggers the handshake
+
+#### Scenario: State updates trigger re-renders
+- **WHEN** handshake state changes
+- **THEN** the UI re-renders to reflect the new state
+
