@@ -89,15 +89,6 @@ func runServer(cmd *cobra.Command, args []string) {
 	uiHandler := func(c *echo.Context) error {
 		// Get the request path and strip the /pair-device prefix
 		path := c.Request().URL.Path
-		if path == "/pair-device" {
-			path = "/"
-		} else if len(path) > len("/pair-device") && path[:len("/pair-device")+1] == "/pair-device/" {
-			path = path[len("/pair-device"):]
-		} else {
-			// Path doesn't start with /pair-device, should not happen
-			return c.File(filepath.Join(uiBuildDir, "index.html"))
-		}
-
 		filePath := filepath.Join(uiBuildDir, path)
 
 		// Check if file exists
@@ -110,8 +101,8 @@ func runServer(cmd *cobra.Command, args []string) {
 	}
 
 	// Register UI routes
-	e.GET("/pair-device", uiHandler)
-	e.GET("/pair-device/*", uiHandler)
+	e.GET("/", uiHandler)
+	e.GET("/*", uiHandler)
 
 	// Create http.Server for graceful shutdown support
 	addr := fmt.Sprintf(":%d", port)

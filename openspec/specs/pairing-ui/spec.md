@@ -62,7 +62,7 @@ The project SHALL use the same core dependencies as claw-signup for consistency.
 - **THEN** Vite version is `^8.0.4`
 
 ### Requirement: Build Configuration
-The project SHALL include Vite build configuration for development and production.
+The project SHALL include Vite build configuration for development and production with support for flexible deployment paths.
 
 #### Scenario: Development server can start
 - **WHEN** `npm run dev` is executed
@@ -71,6 +71,14 @@ The project SHALL include Vite build configuration for development and productio
 #### Scenario: Production build succeeds
 - **WHEN** `npm run build` is executed
 - **THEN** Vite creates an optimized production bundle in `dist/`
+
+#### Scenario: Production build uses relative asset paths
+- **WHEN** `npm run build` is executed
+- **THEN** all asset references in the build output use relative paths
+
+#### Scenario: Build supports deployment at any base path
+- **WHEN** the production build is deployed at a subpath
+- **THEN** the application loads and runs correctly without rebuilding
 
 ### Requirement: HTML Entry Point
 The application SHALL use an HTML file as the entry point with proper meta tags.
