@@ -10,9 +10,9 @@ function App() {
     const runHandshake = async () => {
       setHandshakeStatus('loading')
       try {
-        // Extract token from URL fragment (e.g., #token or #/token)
+        // Extract token from URL fragment (e.g., #token=value or #value)
         const fragment = window.location.hash
-        const token = fragment ? fragment.replace(/^#\/?/, '') : undefined
+        const token = fragment ? fragment.replace(/^#\/?(?:token=)?/, '') : undefined
         if (token) {
           console.log('Using auth token from URL fragment')
         }
