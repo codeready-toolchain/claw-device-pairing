@@ -41,7 +41,7 @@ Cryptographic material SHALL be encoded using base64url format (RFC 4648) withou
 - **THEN** it reverses the encoding and returns the original Uint8Array
 
 ### Requirement: Persistent Storage
-Device identity SHALL be stored in browser localStorage using the key "openclaw-device-identity-v1" with a versioned schema.
+Device identity SHALL be stored in browser localStorage using the key "openclaw-device-identity-v1" with a versioned schema and loaded on subsequent page loads.
 
 #### Scenario: Store identity on generation
 - **WHEN** a new identity is generated
@@ -58,6 +58,10 @@ Device identity SHALL be stored in browser localStorage using the key "openclaw-
 #### Scenario: Regenerate on corruption
 - **WHEN** stored identity is invalid or corrupted
 - **THEN** a new identity is generated and stored
+
+#### Scenario: No forced regeneration
+- **WHEN** loadOrCreateDeviceIdentity() is called
+- **THEN** the function checks localStorage first and only generates a new identity if no valid stored identity exists
 
 ### Requirement: Device Payload Signing
 The system SHALL sign device authentication payloads using Ed25519 signature with the device's private key.

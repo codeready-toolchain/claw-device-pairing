@@ -60,44 +60,38 @@ async function generateIdentity(): Promise<DeviceIdentity> {
 export async function loadOrCreateDeviceIdentity(): Promise<DeviceIdentity> {
   const storage = localStorage;
 
-  // Force regeneration for @noble/ed25519 v3.x compatibility
-  // Remove this after confirming it works
-  const forceRegenerate = true;
-
-  if (!forceRegenerate) {
-    try {
-      const raw = storage?.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as StoredIdentity;
-        if (
-          parsed?.version === 1 &&
-          typeof parsed.deviceId === "string" &&
-          typeof parsed.publicKey === "string" &&
-          typeof parsed.privateKey === "string"
-        ) {
-          const derivedId = await fingerprintPublicKey(base64UrlDecode(parsed.publicKey));
-          if (derivedId !== parsed.deviceId) {
-            const updated: StoredIdentity = {
-              ...parsed,
-              deviceId: derivedId,
-            };
-            storage?.setItem(STORAGE_KEY, JSON.stringify(updated));
-            return {
-              deviceId: derivedId,
-              publicKey: parsed.publicKey,
-              privateKey: parsed.privateKey,
-            };
-          }
+  try {
+    const raw = storage?.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as StoredIdentity;
+      if (
+        parsed?.version === 1 &&
+        typeof parsed.deviceId === "string" &&
+        typeof parsed.publicKey === "string" &&
+        typeof parsed.privateKey === "string"
+      ) {
+        const derivedId = await fingerprintPublicKey(base64UrlDecode(parsed.publicKey));
+        if (derivedId !== parsed.deviceId) {
+          const updated: StoredIdentity = {
+            ...parsed,
+            deviceId: derivedId,
+          };
+          storage?.setItem(STORAGE_KEY, JSON.stringify(updated));
           return {
-            deviceId: parsed.deviceId,
+            deviceId: derivedId,
             publicKey: parsed.publicKey,
             privateKey: parsed.privateKey,
           };
         }
+        return {
+          deviceId: parsed.deviceId,
+          publicKey: parsed.publicKey,
+          privateKey: parsed.privateKey,
+        };
       }
-    } catch {
-      // fall through to regenerate
     }
+  } catch {
+    // fall through to regenerate
   }
 
   const identity = await generateIdentity();
