@@ -137,3 +137,46 @@ func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
 	}
 }
+
+func TestHandleGetPairingStatus_ValidRequest(t *testing.T) {
+	// Setup
+	e := echo.New()
+	handler := NewPairingRequestsHandler()
+	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
+
+	req := httptest.NewRequest(http.MethodGet, "/pairing-requests/test-request-123", nil)
+	rec := httptest.NewRecorder()
+
+	// Execute
+	e.ServeHTTP(rec, req)
+
+	// Assert
+	if rec.Code != http.StatusAccepted {
+		t.Errorf("expected status %d, got %d", http.StatusAccepted, rec.Code)
+	}
+
+	expectedBody := `{"status":"pending"}`
+	actualBody := strings.TrimSpace(rec.Body.String())
+	if actualBody != expectedBody {
+		t.Errorf("expected body %q, got %q", expectedBody, actualBody)
+	}
+}
+
+func TestHandleGetPairingStatus_MissingID(t *testing.T) {
+	// Setup
+	e := echo.New()
+	handler := NewPairingRequestsHandler()
+	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
+
+	// Request with empty path parameter
+	req := httptest.NewRequest(http.MethodGet, "/pairing-requests/", nil)
+	rec := httptest.NewRecorder()
+
+	// Execute
+	e.ServeHTTP(rec, req)
+
+	// Assert - Echo will return 404 for unmatched route
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected status %d, got %d", http.StatusNotFound, rec.Code)
+	}
+}

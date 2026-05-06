@@ -11,6 +11,11 @@ type PairingDeviceResponse struct {
 	Message string `json:"message"`
 }
 
+// PairingStatusResponse represents the response for pairing status queries
+type PairingStatusResponse struct {
+	Status string `json:"status"`
+}
+
 // ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error  string `json:"error"`

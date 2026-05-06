@@ -50,3 +50,34 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 		Message: "pairing request received",
 	})
 }
+
+// HandleGetPairingStatus processes GET requests to retrieve pairing request status
+func (h *PairingRequestsHandler) HandleGetPairingStatus(c *echo.Context) error {
+	// Extract request ID from URL path parameter
+	requestID := c.Param("id")
+	if requestID == "" {
+		slog.Warn("missing request ID in path parameter")
+		return c.JSON(http.StatusNotFound, models.ErrorResponse{
+			Error:  "request ID is required",
+			Status: "error",
+		})
+	}
+
+	requestID = strings.TrimSpace(requestID)
+	if requestID == "" {
+		slog.Warn("empty request ID in path parameter")
+		return c.JSON(http.StatusNotFound, models.ErrorResponse{
+			Error:  "request ID cannot be empty",
+			Status: "error",
+		})
+	}
+
+	// TODO: Check actual pairing status from database
+	// For now, always return pending (202) as this is MVP without persistence
+	slog.Info("pairing status check", "request_id", requestID)
+
+	// Return 202 Accepted with pending status
+	return c.JSON(http.StatusAccepted, models.PairingStatusResponse{
+		Status: "pending",
+	})
+}
