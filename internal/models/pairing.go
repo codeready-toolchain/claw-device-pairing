@@ -1,12 +1,12 @@
 package models
 
-// PairDeviceRequest represents the JSON request body for device pairing
-type PairDeviceRequest struct {
-	ID string `json:"id"`
+// PairingDeviceRequest represents the JSON request body for device pairing
+type PairingDeviceRequest struct {
+	RequestID string `json:"requestId"`
 }
 
-// PairDeviceResponse represents the success response for device pairing
-type PairDeviceResponse struct {
+// PairingDeviceResponse represents the success response for device pairing
+type PairingDeviceResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }

@@ -12,12 +12,12 @@ import (
 func TestHandlePairDevice_ValidRequest(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/pair-device", strings.NewReader(`{"id":"test-device"}`))
+	req := httptest.NewRequest(http.MethodPost, "/pairing-requests", strings.NewReader(`{"requestId":"test-request-123"}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingHandler()
+	handler := NewPairingRequestsHandler()
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -39,12 +39,12 @@ func TestHandlePairDevice_ValidRequest(t *testing.T) {
 func TestHandlePairDevice_InvalidJSON(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/pair-device", strings.NewReader(`{invalid json}`))
+	req := httptest.NewRequest(http.MethodPost, "/pairing-requests", strings.NewReader(`{invalid json}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingHandler()
+	handler := NewPairingRequestsHandler()
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -60,12 +60,12 @@ func TestHandlePairDevice_InvalidJSON(t *testing.T) {
 func TestHandlePairDevice_MissingIDField(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/pair-device", strings.NewReader(`{}`))
+	req := httptest.NewRequest(http.MethodPost, "/pairing-requests", strings.NewReader(`{}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingHandler()
+	handler := NewPairingRequestsHandler()
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -77,7 +77,7 @@ func TestHandlePairDevice_MissingIDField(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"id cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
@@ -87,12 +87,12 @@ func TestHandlePairDevice_MissingIDField(t *testing.T) {
 func TestHandlePairDevice_EmptyIDField(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/pair-device", strings.NewReader(`{"id":""}`))
+	req := httptest.NewRequest(http.MethodPost, "/pairing-requests", strings.NewReader(`{"requestId":""}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingHandler()
+	handler := NewPairingRequestsHandler()
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -104,7 +104,7 @@ func TestHandlePairDevice_EmptyIDField(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"id cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
@@ -114,12 +114,12 @@ func TestHandlePairDevice_EmptyIDField(t *testing.T) {
 func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/pair-device", strings.NewReader(`{"id":"   "}`))
+	req := httptest.NewRequest(http.MethodPost, "/pairing-requests", strings.NewReader(`{"requestId":"   "}`))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingHandler()
+	handler := NewPairingRequestsHandler()
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -131,7 +131,7 @@ func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"id cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)

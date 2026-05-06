@@ -62,7 +62,7 @@ func runServer(cmd *cobra.Command, args []string) {
 	}
 
 	// Initialize handlers
-	pairingHandler := handlers.NewPairingHandler()
+	pairingHandler := handlers.NewPairingRequestsHandler()
 
 	// Initialize Echo instance
 	e := echo.New()
@@ -80,7 +80,7 @@ func runServer(cmd *cobra.Command, args []string) {
 	e.Use(middleware.RequestLogger())
 
 	// Register API routes
-	e.POST("/pair-device", pairingHandler.HandlePairDevice)
+	e.POST("/pairing-requests", pairingHandler.HandlePairDevice)
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})

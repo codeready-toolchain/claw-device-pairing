@@ -1,40 +1,44 @@
-## ADDED Requirements
+## Purpose
+
+This specification defines the HTTP endpoint for submitting device pairing requests to the backend. It establishes the endpoint path, request/response format, validation rules, and handler structure.
+
+## Requirements
 
 ### Requirement: Endpoint Registration
-The system SHALL register a POST endpoint at `/pair-device` that accepts JSON requests.
+The system SHALL register a POST endpoint at `/pairing-requests` that accepts JSON requests.
 
 #### Scenario: Endpoint is registered
 - **WHEN** server starts
-- **THEN** POST /pair-device endpoint is available
+- **THEN** POST /pairing-requests endpoint is available
 
 #### Scenario: GET method not allowed
-- **WHEN** GET request is made to /pair-device
+- **WHEN** GET request is made to /pairing-requests
 - **THEN** response status is 405 Method Not Allowed
 
 ### Requirement: Request Model
-The system SHALL accept JSON requests with an `id` field of type string.
+The system SHALL accept JSON requests with a `requestId` field of type string.
 
-#### Scenario: Valid JSON with id field
-- **WHEN** POST request contains valid JSON with `{"id":"device-123"}`
+#### Scenario: Valid JSON with requestId field
+- **WHEN** POST request contains valid JSON with `{"requestId":"request-123"}`
 - **THEN** request is parsed successfully
 
-#### Scenario: Missing id field
-- **WHEN** POST request contains JSON without id field
+#### Scenario: Missing requestId field
+- **WHEN** POST request contains JSON without requestId field
 - **THEN** response status is 400 Bad Request with error message
 
 ### Requirement: Request Validation
-The system SHALL validate that the id field is non-empty.
+The system SHALL validate that the requestId field is non-empty.
 
-#### Scenario: Empty id field
-- **WHEN** POST request contains `{"id":""}`
-- **THEN** response status is 400 Bad Request with error message "id cannot be empty"
+#### Scenario: Empty requestId field
+- **WHEN** POST request contains `{"requestId":""}`
+- **THEN** response status is 400 Bad Request with error message "requestId cannot be empty"
 
-#### Scenario: Whitespace-only id field
-- **WHEN** POST request contains `{"id":"   "}`
-- **THEN** response status is 400 Bad Request with error message "id cannot be empty"
+#### Scenario: Whitespace-only requestId field
+- **WHEN** POST request contains `{"requestId":"   "}`
+- **THEN** response status is 400 Bad Request with error message "requestId cannot be empty"
 
-#### Scenario: Valid non-empty id
-- **WHEN** POST request contains `{"id":"device-xyz"}`
+#### Scenario: Valid non-empty requestId
+- **WHEN** POST request contains `{"requestId":"request-xyz"}`
 - **THEN** request passes validation
 
 ### Requirement: JSON Parsing
@@ -52,7 +56,7 @@ The system SHALL return 400 Bad Request for invalid JSON payloads.
 The system SHALL return 200 OK with JSON response for valid pairing requests.
 
 #### Scenario: Successful pairing request
-- **WHEN** POST request is valid with non-empty id
+- **WHEN** POST request is valid with non-empty requestId
 - **THEN** response status is 200 OK and body contains `{"status":"success","message":"pairing request received"}`
 
 ### Requirement: Error Response Format
@@ -67,11 +71,11 @@ The system SHALL return consistent JSON error responses with error and status fi
 - **THEN** error details are logged with slog
 
 ### Requirement: Handler Structure
-The system SHALL implement the endpoint handler using a PairingHandler struct with constructor.
+The system SHALL implement the endpoint handler using a PairingRequestsHandler struct with constructor.
 
 #### Scenario: Handler is instantiated
 - **WHEN** server initializes
-- **THEN** PairingHandler is created via NewPairingHandler constructor
+- **THEN** PairingRequestsHandler is created via NewPairingRequestsHandler constructor
 
 #### Scenario: Handler method signature
 - **WHEN** handler is called

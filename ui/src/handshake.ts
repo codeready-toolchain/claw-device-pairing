@@ -1,5 +1,21 @@
 import { DeviceIdentity, loadOrCreateDeviceIdentity, signDevicePayload } from "./device-identity";
 
+class HandshakeError extends Error {
+  code: string;
+  details?: {
+    code?: string;
+    reason?: string;
+    requestId?: string;
+  };
+
+  constructor(code: string, message: string, details?: { code?: string; reason?: string; requestId?: string }) {
+    super(message);
+    this.name = 'HandshakeError';
+    this.code = code;
+    this.details = details;
+  }
+}
+
 type ChallengeEvent = {
   type: "event";
   event: "connect.challenge";
@@ -75,6 +91,7 @@ type ConnectResponse = {
     details?: {
       code?: string;
       reason?: string;
+      requestId?: string;
     };
   };
 };
@@ -270,9 +287,9 @@ export async function performHandshake(params: ConnectParams): Promise<Handshake
         const response = await waitForConnectResponse(ws, connectRequest.id);
 
         if (!response.ok) {
-          const errorCode = response.error?.details?.code || response.error?.code || "UNKNOWN_ERROR";
+          const errorCode = response.error?.code || "UNKNOWN_ERROR";
           const errorMessage = response.error?.message || "Connect failed";
-          reject(new Error(`Connect failed [${errorCode}]: ${errorMessage}`));
+          reject(new HandshakeError(errorCode, errorMessage, response.error?.details));
           return;
         }
 
