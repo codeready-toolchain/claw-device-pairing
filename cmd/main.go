@@ -15,7 +15,9 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/spf13/cobra"
 	"github.com/xcoulon/claw-device-pairing/internal/handlers"
+	"github.com/xcoulon/claw-device-pairing/internal/k8s/client"
 	"github.com/xcoulon/claw-device-pairing/internal/logger"
+	"github.com/xcoulon/claw-device-pairing/internal/version"
 )
 
 var (
@@ -49,6 +51,26 @@ func runServer(cmd *cobra.Command, args []string) {
 	// Initialize logger with JSON output
 	logger.Init()
 
+	// Print version information
+	slog.Info("claw-device-pairing starting", "commit", version.CommitHash, "build_time", version.BuildTime)
+
+	// Validate required environment variables
+	namespace := os.Getenv("NAMESPACE")
+	clawInstance := os.Getenv("CLAW_INSTANCE")
+
+	var missingVars []string
+	if namespace == "" {
+		missingVars = append(missingVars, "NAMESPACE")
+	}
+	if clawInstance == "" {
+		missingVars = append(missingVars, "CLAW_INSTANCE")
+	}
+
+	if len(missingVars) > 0 {
+		slog.Error("required environment variables not set", "missing", missingVars)
+		panic(fmt.Sprintf("required environment variables not set: %v", missingVars))
+	}
+
 	// Validate port range
 	if port < 1 || port > 65535 {
 		slog.Error("invalid port number", "port", port, "valid_range", "1-65535")
@@ -61,8 +83,15 @@ func runServer(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	// Initialize Kubernetes client manager
+	k8sManager, err := client.NewManager()
+	if err != nil {
+		slog.Error("failed to initialize Kubernetes client", "error", err)
+		os.Exit(1)
+	}
+
 	// Initialize handlers
-	pairingHandler := handlers.NewPairingRequestsHandler()
+	pairingHandler := handlers.NewPairingRequestsHandler(k8sManager)
 
 	// Initialize Echo instance
 	e := echo.New()

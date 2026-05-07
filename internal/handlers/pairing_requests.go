@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -9,14 +10,23 @@ import (
 	"github.com/xcoulon/claw-device-pairing/internal/models"
 )
 
+// K8sManager interface for Kubernetes operations
+type K8sManager interface {
+	IsEnabled() bool
+	CreatePairingRequest(ctx context.Context, requestID string) error
+	GetPairingRequestStatus(ctx context.Context, requestID string) (ready bool, err error)
+}
+
 // PairingRequestsHandler handles device pairing requests
 type PairingRequestsHandler struct {
-	// Future: add dependencies like database client
+	k8sManager K8sManager
 }
 
 // NewPairingRequestsHandler creates a new pairing handler
-func NewPairingRequestsHandler() *PairingRequestsHandler {
-	return &PairingRequestsHandler{}
+func NewPairingRequestsHandler(k8sManager K8sManager) *PairingRequestsHandler {
+	return &PairingRequestsHandler{
+		k8sManager: k8sManager,
+	}
 }
 
 // HandlePairDevice processes POST requests to the /pairing-requests endpoint
@@ -43,6 +53,20 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 
 	// Log successful request
 	slog.Info("pairing request received", "request_id", req.RequestID)
+
+	// Create ClawDevicePairingRequest CR
+	if h.k8sManager != nil && h.k8sManager.IsEnabled() {
+		if err := h.k8sManager.CreatePairingRequest(c.Request().Context(), req.RequestID); err != nil {
+			slog.Error("failed to create pairing request CR", "error", err, "request_id", req.RequestID)
+			return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Error:  "Something wrong happened, could not pair the device",
+				Status: "error",
+			})
+		}
+		slog.Info("pairing request CR created", "request_id", req.RequestID)
+	} else {
+		slog.Warn("Kubernetes client not available, skipping CR creation", "request_id", req.RequestID)
+	}
 
 	// Return success response
 	return c.JSON(http.StatusOK, models.PairingDeviceResponse{
@@ -72,11 +96,24 @@ func (h *PairingRequestsHandler) HandleGetPairingStatus(c *echo.Context) error {
 		})
 	}
 
-	// TODO: Check actual pairing status from database
-	// For now, always return pending (202) as this is MVP without persistence
 	slog.Info("pairing status check", "request_id", requestID)
 
-	// Return 202 Accepted with pending status
+	if h.k8sManager != nil && h.k8sManager.IsEnabled() {
+		ready, err := h.k8sManager.GetPairingRequestStatus(c.Request().Context(), requestID)
+		if err != nil {
+			slog.Error("failed to get pairing request status", "error", err, "request_id", requestID)
+			return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Error:  "Something wrong happened, could not get pairing status",
+				Status: "error",
+			})
+		}
+		if ready {
+			return c.JSON(http.StatusOK, models.PairingStatusResponse{
+				Status: "ready",
+			})
+		}
+	}
+
 	return c.JSON(http.StatusAccepted, models.PairingStatusResponse{
 		Status: "pending",
 	})

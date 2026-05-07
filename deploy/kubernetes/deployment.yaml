@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claw-device-pairing
+  labels:
+    app: claw-device-pairing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: claw-device-pairing
+  template:
+    metadata:
+      labels:
+        app: claw-device-pairing
+        claw.sandbox.redhat.com/instance: "default"
+    spec:
+      containers:
+      - name: server
+        image: claw-device-pairing:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLAW_INSTANCE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['claw.sandbox.redhat.com/instance']
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

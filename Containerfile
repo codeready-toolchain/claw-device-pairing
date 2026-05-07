@@ -24,6 +24,8 @@ RUN npm run build
 FROM --platform=${BUILDPLATFORM} mirror.gcr.io/library/golang:1.25 AS server-builder
 ARG TARGETOS
 ARG TARGETARCH
+ARG COMMIT_HASH=unknown
+ARG BUILD_TIME=unknown
 
 WORKDIR /app
 
@@ -37,8 +39,11 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 
-# Build server binary
-RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -o bin/claw-device-pairing ./cmd
+# Build server binary with version information
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build \
+    -ldflags "-X 'github.com/xcoulon/claw-device-pairing/internal/version.CommitHash=${COMMIT_HASH}' \
+              -X 'github.com/xcoulon/claw-device-pairing/internal/version.BuildTime=${BUILD_TIME}'" \
+    -o bin/claw-device-pairing ./cmd
 
 # Stage 3: Runtime
 FROM --platform=${TARGETPLATFORM} alpine:latest

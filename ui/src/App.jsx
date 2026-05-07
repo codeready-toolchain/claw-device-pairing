@@ -26,17 +26,17 @@ function App() {
         const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || `${wsProtocol}//${window.location.host}`
         await performHandshake({
           clientId: 'openclaw-control-ui',
-          clientVersion: '1.0.0',
+          clientVersion: '2026.5.3',
           mode: 'webchat',
           role: 'operator',
           scopes: [
             'operator.admin',
-            'operator.read',
-            'operator.write',
             'operator.approvals',
-            'operator.pairing'
+            'operator.pairing',
+            'operator.read',
+            'operator.write'
           ],
-          platform: 'web',
+          platform: 'MacIntel',
           deviceFamily: 'webchat',
           token,
           gatewayUrl
@@ -74,24 +74,35 @@ function App() {
 
       setPairingStatus('pending')
       try {
+        // Create abort controller for timeout
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
         const response = await fetch('pairing-requests', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ requestId: pairingRequestId })
+          body: JSON.stringify({ requestId: pairingRequestId }),
+          signal: controller.signal
         })
+
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
           throw new Error(errorData.error || `HTTP ${response.status}`)
         }
 
-        console.log('Pairing request submitted successfully')
-        setPairingStatus('success')
+        console.log('Pairing request submitted successfully, starting status polling')
+        setPairingStatus('progressing')
       } catch (err) {
         console.error('Pairing submission failed:', err)
-        setPairingErrorMessage(err.message || 'Failed to submit pairing request')
+        if (err.name === 'AbortError') {
+          setPairingErrorMessage('Request timed out - please try again')
+        } else {
+          setPairingErrorMessage(err.message || 'Failed to submit pairing request')
+        }
         setPairingStatus('error')
       }
     }
@@ -101,7 +112,7 @@ function App() {
 
   // Poll pairing status after submission
   useEffect(() => {
-    if (!pairingRequestId || pairingStatus !== 'success') return
+    if (!pairingRequestId || pairingStatus !== 'progressing') return
 
     setIsPolling(true)
     setApprovalStatus('pending')
@@ -119,6 +130,7 @@ function App() {
         if (response.status === 200) {
           // Pairing approved
           console.log('Pairing approved')
+          setPairingStatus('success')
           setApprovalStatus('approved')
           setIsPolling(false)
           return true
@@ -129,6 +141,7 @@ function App() {
         } else {
           // Error
           console.error('Unexpected status during polling:', response.status)
+          setPairingStatus('error')
           setApprovalStatus('error')
           setPairingErrorMessage('Failed to check pairing status')
           setIsPolling(false)
@@ -136,6 +149,7 @@ function App() {
         }
       } catch (err) {
         console.error('Error polling pairing status:', err)
+        setPairingStatus('error')
         setApprovalStatus('error')
         setPairingErrorMessage('Network error while checking status')
         setIsPolling(false)
@@ -148,6 +162,7 @@ function App() {
 
       if (elapsed >= TIMEOUT_MS) {
         console.warn('Polling timeout after 30 seconds')
+        setPairingStatus('error')
         setApprovalStatus('timeout')
         setPairingErrorMessage('Pairing approval timed out')
         setIsPolling(false)
@@ -201,7 +216,12 @@ function App() {
           <ProgressStep
             id="step-2"
             titleId="step-2-title"
-            variant={pairingStatus === 'success' ? 'success' : pairingStatus === 'error' ? 'danger' : pairingStatus === 'pending' ? 'info' : undefined}
+            variant={
+              pairingStatus === 'success' ? 'success' :
+              pairingStatus === 'error' ? 'danger' :
+              pairingStatus === 'pending' || pairingStatus === 'progressing' ? 'info' :
+              undefined
+            }
             description={pairingStatus === 'error' && pairingErrorMessage ? pairingErrorMessage : undefined}
           >
             Pair device with OpenClaw

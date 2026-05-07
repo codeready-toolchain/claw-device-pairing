@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,7 +19,7 @@ func TestHandlePairDevice_ValidRequest(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -44,7 +46,7 @@ func TestHandlePairDevice_InvalidJSON(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -65,7 +67,7 @@ func TestHandlePairDevice_MissingIDField(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -92,7 +94,7 @@ func TestHandlePairDevice_EmptyIDField(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -119,7 +121,7 @@ func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 
 	// Execute
 	if err := handler.HandlePairDevice(c); err != nil {
@@ -141,7 +143,7 @@ func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 func TestHandleGetPairingStatus_ValidRequest(t *testing.T) {
 	// Setup
 	e := echo.New()
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
 
 	req := httptest.NewRequest(http.MethodGet, "/pairing-requests/test-request-123", nil)
@@ -162,10 +164,57 @@ func TestHandleGetPairingStatus_ValidRequest(t *testing.T) {
 	}
 }
 
+func TestHandleGetPairingStatus_Ready(t *testing.T) {
+	e := echo.New()
+	mock := &mockStatusManager{ready: true}
+	handler := NewPairingRequestsHandler(mock)
+	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
+
+	req := httptest.NewRequest(http.MethodGet, "/pairing-requests/test-request-123", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, rec.Code)
+	}
+
+	expectedBody := `{"status":"ready"}`
+	actualBody := strings.TrimSpace(rec.Body.String())
+	if actualBody != expectedBody {
+		t.Errorf("expected body %q, got %q", expectedBody, actualBody)
+	}
+}
+
+func TestHandleGetPairingStatus_StatusError(t *testing.T) {
+	e := echo.New()
+	mock := &mockStatusManager{err: fmt.Errorf("k8s error")}
+	handler := NewPairingRequestsHandler(mock)
+	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
+
+	req := httptest.NewRequest(http.MethodGet, "/pairing-requests/test-request-123", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("expected status %d, got %d", http.StatusInternalServerError, rec.Code)
+	}
+}
+
+type mockStatusManager struct {
+	ready bool
+	err   error
+}
+
+func (m *mockStatusManager) IsEnabled() bool                                           { return true }
+func (m *mockStatusManager) CreatePairingRequest(_ context.Context, _ string) error    { return nil }
+func (m *mockStatusManager) GetPairingRequestStatus(_ context.Context, _ string) (bool, error) {
+	return m.ready, m.err
+}
+
 func TestHandleGetPairingStatus_MissingID(t *testing.T) {
 	// Setup
 	e := echo.New()
-	handler := NewPairingRequestsHandler()
+	handler := NewPairingRequestsHandler(nil)
 	e.GET("/pairing-requests/:id", handler.HandleGetPairingStatus)
 
 	// Request with empty path parameter
