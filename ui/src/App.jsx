@@ -8,7 +8,7 @@ function App() {
   const [pairingRequestId, setPairingRequestId] = useState(null)
   const [pairingErrorMessage, setPairingErrorMessage] = useState(null)
   const [approvalStatus, setApprovalStatus] = useState('idle')
-  const [isPolling, setIsPolling] = useState(false)
+
 
   useEffect(() => {
     const runHandshake = async () => {
@@ -114,7 +114,7 @@ function App() {
   useEffect(() => {
     if (!pairingRequestId || pairingStatus !== 'progressing') return
 
-    setIsPolling(true)
+
     setApprovalStatus('pending')
 
     const startTime = Date.now()
@@ -132,7 +132,7 @@ function App() {
           console.log('Pairing approved')
           setPairingStatus('success')
           setApprovalStatus('approved')
-          setIsPolling(false)
+
           return true
         } else if (response.status === 202) {
           // Still pending
@@ -144,7 +144,7 @@ function App() {
           setPairingStatus('error')
           setApprovalStatus('error')
           setPairingErrorMessage('Failed to check pairing status')
-          setIsPolling(false)
+
           return true
         }
       } catch (err) {
