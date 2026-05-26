@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/codeready-toolchain/claw-device-pairing/internal/models"
 	"github.com/labstack/echo/v5"
-	"github.com/xcoulon/claw-device-pairing/internal/models"
 )
 
 // K8sManager interface for Kubernetes operations

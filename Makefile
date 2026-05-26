@@ -3,15 +3,15 @@
 .DEFAULT_GOAL := help
 
 # Image tag (can be overridden with IMG variable)
-IMG ?= quay.io/xcoulon/claw-device-pairing:latest
+IMG ?= quay.io/codeready-toolchain/claw-device-pairing:latest
 
 PLATFORM ?= linux/amd64
 
 # Version information
 COMMIT_HASH := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
-LDFLAGS := -X 'github.com/xcoulon/claw-device-pairing/internal/version.CommitHash=$(COMMIT_HASH)' \
-           -X 'github.com/xcoulon/claw-device-pairing/internal/version.BuildTime=$(BUILD_TIME)'
+LDFLAGS := -X 'github.com/codeready-toolchain/claw-device-pairing/internal/version.CommitHash=$(COMMIT_HASH)' \
+           -X 'github.com/codeready-toolchain/claw-device-pairing/internal/version.BuildTime=$(BUILD_TIME)'
 
 help: ## Show this help message
 	@echo "Available targets:"
