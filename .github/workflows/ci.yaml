@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - run: make test
+
+  lint-go:
+    name: Lint Go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          args: --config .golangci.yml
+
+  lint-and-build-ui:
+    name: Lint and Build UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+        working-directory: ui
+
+      - run: npm run lint
+        working-directory: ui
+
+      - run: npm run build
+        working-directory: ui
+
+  build-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: redhat-actions/buildah-build@v2
+        with:
+          image: claw-device-pairing
+          tags: ci-${{ github.sha }}
+          containerfiles: ./Containerfile
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
