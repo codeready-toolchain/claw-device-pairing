@@ -41,8 +41,8 @@ COPY internal/ ./internal/
 
 # Build server binary with version information
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build \
-    -ldflags "-X 'github.com/xcoulon/claw-device-pairing/internal/version.CommitHash=${COMMIT_HASH}' \
-              -X 'github.com/xcoulon/claw-device-pairing/internal/version.BuildTime=${BUILD_TIME}'" \
+    -ldflags "-X 'github.com/codeready-toolchain/claw-device-pairing/internal/version.CommitHash=${COMMIT_HASH}' \
+              -X 'github.com/codeready-toolchain/claw-device-pairing/internal/version.BuildTime=${BUILD_TIME}'" \
     -o bin/claw-device-pairing ./cmd
 
 # Stage 3: Runtime

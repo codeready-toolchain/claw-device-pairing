@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/codeready-toolchain/claw-device-pairing/internal/version"
 	"github.com/labstack/echo/v5"
-	"github.com/xcoulon/claw-device-pairing/internal/version"
 )
 
 func TestHandleHealth(t *testing.T) {

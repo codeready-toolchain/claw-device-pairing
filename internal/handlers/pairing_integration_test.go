@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/codeready-toolchain/claw-device-pairing/internal/k8s/client"
 	"github.com/labstack/echo/v5"
-	"github.com/xcoulon/claw-device-pairing/internal/k8s/client"
 )
 
 func TestHandlePairDevice_WithCRCreation_Success(t *testing.T) {

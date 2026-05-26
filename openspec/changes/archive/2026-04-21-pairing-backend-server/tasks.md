@@ -1,6 +1,6 @@
 ## 1. Project Initialization
 
-- [x] 1.1 Initialize Go module with `go mod init github.com/xcoulon/claw-device-pairing`
+- [x] 1.1 Initialize Go module with `go mod init github.com/codeready-toolchain/claw-device-pairing`
 - [x] 1.2 Create `cmd/` directory at project root
 - [x] 1.3 Create `internal/handlers/` directory for HTTP handlers
 - [x] 1.4 Create `internal/models/` directory for request/response types

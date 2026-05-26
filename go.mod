@@ -1,4 +1,4 @@
-module github.com/xcoulon/claw-device-pairing
+module github.com/codeready-toolchain/claw-device-pairing
 
 go 1.25.9
 

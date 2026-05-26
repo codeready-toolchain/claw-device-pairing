@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/xcoulon/claw-device-pairing/internal/k8s/naming"
+	"github.com/codeready-toolchain/claw-device-pairing/internal/k8s/naming"
 )
 
 // CreatePairingRequest creates a ClawDevicePairingRequest CR

@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/codeready-toolchain/claw-device-pairing/internal/handlers"
+	"github.com/codeready-toolchain/claw-device-pairing/internal/k8s/client"
+	"github.com/codeready-toolchain/claw-device-pairing/internal/logger"
+	"github.com/codeready-toolchain/claw-device-pairing/internal/version"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 	"github.com/spf13/cobra"
-	"github.com/xcoulon/claw-device-pairing/internal/handlers"
-	"github.com/xcoulon/claw-device-pairing/internal/k8s/client"
-	"github.com/xcoulon/claw-device-pairing/internal/logger"
-	"github.com/xcoulon/claw-device-pairing/internal/version"
 )
 
 var (
