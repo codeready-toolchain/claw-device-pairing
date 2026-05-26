@@ -111,9 +111,7 @@ func runServer(cmd *cobra.Command, args []string) {
 	// Register API routes
 	e.POST("/pairing-requests", pairingHandler.HandlePairDevice)
 	e.GET("/pairing-requests/:id", pairingHandler.HandleGetPairingStatus)
-	e.GET("/health", func(c *echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-	})
+	e.GET("/health", handlers.HandleHealth)
 
 	// Serve UI from /pair-device path
 	uiHandler := func(c *echo.Context) error {

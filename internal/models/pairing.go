@@ -28,3 +28,10 @@ type ErrorResponse struct {
 	Error  string `json:"error"`
 	Status string `json:"status"`
 }
+
+// HealthResponse represents the response for health check queries
+type HealthResponse struct {
+	Status     string `json:"status"`
+	CommitHash string `json:"commit_hash"`
+	BuildTime  string `json:"build_time"`
+}
