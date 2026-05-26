@@ -79,7 +79,7 @@ func TestHandlePairDevice_MissingIDField(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}` //nolint:goconst
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
@@ -106,7 +106,7 @@ func TestHandlePairDevice_EmptyIDField(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}` //nolint:goconst
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
@@ -133,7 +133,7 @@ func TestHandlePairDevice_WhitespaceOnlyID(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
 	}
 
-	expectedError := `{"error":"requestId cannot be empty","status":"error"}`
+	expectedError := `{"error":"requestId cannot be empty","status":"error"}` //nolint:goconst
 	actualBody := strings.TrimSpace(rec.Body.String())
 	if actualBody != expectedError {
 		t.Errorf("expected body %q, got %q", expectedError, actualBody)
@@ -205,8 +205,8 @@ type mockStatusManager struct {
 	err   error
 }
 
-func (m *mockStatusManager) IsEnabled() bool                                           { return true }
-func (m *mockStatusManager) CreatePairingRequest(_ context.Context, _ string) error    { return nil }
+func (m *mockStatusManager) IsEnabled() bool                                        { return true }
+func (m *mockStatusManager) CreatePairingRequest(_ context.Context, _ string) error { return nil }
 func (m *mockStatusManager) GetPairingRequestStatus(_ context.Context, _ string) (bool, error) {
 	return m.ready, m.err
 }

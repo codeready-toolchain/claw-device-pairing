@@ -16,6 +16,13 @@ type PairingStatusResponse struct {
 	Status string `json:"status"`
 }
 
+const (
+	PairingStatusSuccess = "success"
+	PairingStatusError   = "error"
+	PairingStatusPending = "pending"
+	PairingStatusReady   = "ready"
+)
+
 // ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error  string `json:"error"`

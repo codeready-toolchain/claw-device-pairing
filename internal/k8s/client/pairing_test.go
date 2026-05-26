@@ -21,11 +21,11 @@ func TestCreatePairingRequest_Success(t *testing.T) {
 	// Create manager with fake client
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 		selector: metav1.LabelSelector{
 			MatchLabels: map[string]string{
 				AppLabelKey:      "claw",
-				InstanceLabelKey: "test-instance",
+				InstanceLabelKey: testInstance,
 			},
 		},
 	}
@@ -42,7 +42,7 @@ func TestCreatePairingRequest_Success(t *testing.T) {
 	// Verify CR was created
 	cr := &clawv1alpha1.ClawDevicePairingRequest{}
 	err = fakeClient.Get(ctx, client.ObjectKey{
-		Namespace: "test-namespace",
+		Namespace: testNamespace,
 		Name:      requestID,
 	}, cr)
 	if err != nil {
@@ -53,8 +53,8 @@ func TestCreatePairingRequest_Success(t *testing.T) {
 	if cr.Spec.RequestID != requestID {
 		t.Errorf("Expected requestID %q, got %q", requestID, cr.Spec.RequestID)
 	}
-	if cr.Spec.Selector.MatchLabels[InstanceLabelKey] != "test-instance" {
-		t.Errorf("Expected instance label %q, got %q", "test-instance", cr.Spec.Selector.MatchLabels[InstanceLabelKey])
+	if cr.Spec.Selector.MatchLabels[InstanceLabelKey] != testInstance {
+		t.Errorf("Expected instance label %q, got %q", testInstance, cr.Spec.Selector.MatchLabels[InstanceLabelKey])
 	}
 }
 
@@ -85,7 +85,7 @@ func TestCreatePairingRequest_InvalidRequestID(t *testing.T) {
 
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 	}
 
 	ctx := context.Background()
@@ -110,7 +110,7 @@ func TestCreatePairingRequest_SanitizesName(t *testing.T) {
 
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 	}
 
 	ctx := context.Background()
@@ -126,7 +126,7 @@ func TestCreatePairingRequest_SanitizesName(t *testing.T) {
 	// Verify CR was created with sanitized name
 	cr := &clawv1alpha1.ClawDevicePairingRequest{}
 	err = fakeClient.Get(ctx, client.ObjectKey{
-		Namespace: "test-namespace",
+		Namespace: testNamespace,
 		Name:      expectedName,
 	}, cr)
 	if err != nil {
@@ -145,7 +145,7 @@ func TestGetPairingRequestStatus_Ready(t *testing.T) {
 	cr := &clawv1alpha1.ClawDevicePairingRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-request-123",
-			Namespace: "test-namespace",
+			Namespace: testNamespace,
 		},
 		Status: clawv1alpha1.ClawDevicePairingRequestStatus{
 			Conditions: []metav1.Condition{
@@ -165,7 +165,7 @@ func TestGetPairingRequestStatus_Ready(t *testing.T) {
 
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 	}
 
 	ready, err := manager.GetPairingRequestStatus(context.Background(), "test-request-123")
@@ -184,7 +184,7 @@ func TestGetPairingRequestStatus_NotReady(t *testing.T) {
 	cr := &clawv1alpha1.ClawDevicePairingRequest{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-request-456",
-			Namespace: "test-namespace",
+			Namespace: testNamespace,
 		},
 	}
 
@@ -195,7 +195,7 @@ func TestGetPairingRequestStatus_NotReady(t *testing.T) {
 
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 	}
 
 	ready, err := manager.GetPairingRequestStatus(context.Background(), "test-request-456")
@@ -215,7 +215,7 @@ func TestGetPairingRequestStatus_NotFound(t *testing.T) {
 
 	manager := &Manager{
 		client:    fakeClient,
-		namespace: "test-namespace",
+		namespace: testNamespace,
 	}
 
 	_, err := manager.GetPairingRequestStatus(context.Background(), "nonexistent")

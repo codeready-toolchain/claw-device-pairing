@@ -5,7 +5,13 @@ import (
 	"testing"
 )
 
+const (
+	testNamespace = "test-namespace"
+	testInstance  = "test-instance"
+)
+
 func TestNewManager_EnvironmentVariables(t *testing.T) {
+
 	tests := []struct {
 		name         string
 		namespaceEnv string
@@ -16,13 +22,13 @@ func TestNewManager_EnvironmentVariables(t *testing.T) {
 		{
 			name:         "missing namespace",
 			namespaceEnv: "",
-			instanceEnv:  "test-instance",
+			instanceEnv:  testInstance,
 			expectError:  true,
 			errorMsg:     "NAMESPACE environment variable is required",
 		},
 		{
 			name:         "missing instance",
-			namespaceEnv: "test-namespace",
+			namespaceEnv: testNamespace,
 			instanceEnv:  "",
 			expectError:  true,
 			errorMsg:     "CLAW_INSTANCE environment variable is required",
@@ -36,8 +42,8 @@ func TestNewManager_EnvironmentVariables(t *testing.T) {
 		},
 		{
 			name:         "env vars set but no in-cluster config",
-			namespaceEnv: "test-namespace",
-			instanceEnv:  "test-instance",
+			namespaceEnv: testNamespace,
+			instanceEnv:  testInstance,
 			expectError:  true,
 			errorMsg:     "failed to load in-cluster configuration",
 		},
@@ -47,17 +53,17 @@ func TestNewManager_EnvironmentVariables(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Set environment variables
 			if tt.namespaceEnv != "" {
-				os.Setenv("NAMESPACE", tt.namespaceEnv)
-				defer os.Unsetenv("NAMESPACE")
+				os.Setenv("NAMESPACE", tt.namespaceEnv) //nolint:errcheck
+				defer os.Unsetenv("NAMESPACE")          //nolint:errcheck
 			} else {
-				os.Unsetenv("NAMESPACE")
+				os.Unsetenv("NAMESPACE") //nolint:errcheck
 			}
 
 			if tt.instanceEnv != "" {
-				os.Setenv("CLAW_INSTANCE", tt.instanceEnv)
-				defer os.Unsetenv("CLAW_INSTANCE")
+				os.Setenv("CLAW_INSTANCE", tt.instanceEnv) //nolint:errcheck
+				defer os.Unsetenv("CLAW_INSTANCE")         //nolint:errcheck
 			} else {
-				os.Unsetenv("CLAW_INSTANCE")
+				os.Unsetenv("CLAW_INSTANCE") //nolint:errcheck
 			}
 
 			// Create manager

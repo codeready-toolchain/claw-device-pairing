@@ -37,9 +37,7 @@ linters:
           - lll
         path: internal/*
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+      - ui
 formatters:
   enable:
     - gofmt
@@ -47,6 +45,4 @@ formatters:
   exclusions:
     generated: lax
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+      - ui

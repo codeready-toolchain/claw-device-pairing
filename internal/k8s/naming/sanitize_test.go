@@ -13,7 +13,7 @@ func TestIsDNS1123Label(t *testing.T) {
 	}{
 		{
 			name:  "valid lowercase alphanumeric",
-			input: "valid-label-123",
+			input: "valid-label-123", //nolint:goconst
 			want:  true,
 		},
 		{
@@ -80,8 +80,8 @@ func TestSanitizeDNS1123Label(t *testing.T) {
 	}{
 		{
 			name:  "already valid lowercase",
-			input: "valid-label-123",
-			want:  "valid-label-123",
+			input: "valid-label-123", //nolint:goconst
+			want:  "valid-label-123", //nolint:goconst
 		},
 		{
 			name:  "uppercase to lowercase",

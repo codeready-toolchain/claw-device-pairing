@@ -18,7 +18,7 @@ import (
 // Returns error if creation fails
 func (m *Manager) CreatePairingRequest(ctx context.Context, requestID string) error {
 	if !m.IsEnabled() {
-		return fmt.Errorf("Kubernetes client not enabled, cannot create pairing request CR")
+		return fmt.Errorf("Kubernetes client not enabled, cannot create pairing request CR") //nolint:staticcheck
 	}
 
 	// Sanitize requestID for use as CR name
@@ -61,7 +61,7 @@ func (m *Manager) CreatePairingRequest(ctx context.Context, requestID string) er
 // its "Ready" condition is True.
 func (m *Manager) GetPairingRequestStatus(ctx context.Context, requestID string) (ready bool, err error) {
 	if !m.IsEnabled() {
-		return false, fmt.Errorf("Kubernetes client not enabled, cannot get pairing request status")
+		return false, fmt.Errorf("Kubernetes client not enabled, cannot get pairing request status") //nolint:staticcheck
 	}
 
 	crName := naming.SanitizeDNS1123Label(requestID)

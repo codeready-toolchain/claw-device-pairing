@@ -37,7 +37,7 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 		slog.Error("error parsing request", "error", err)
 		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Error:  "Invalid request format",
-			Status: "error",
+			Status: models.PairingStatusError,
 		})
 	}
 
@@ -47,7 +47,7 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 		slog.Warn("empty or whitespace-only requestId received")
 		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Error:  "requestId cannot be empty",
-			Status: "error",
+			Status: models.PairingStatusError,
 		})
 	}
 
@@ -60,7 +60,7 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 			slog.Error("failed to create pairing request CR", "error", err, "request_id", req.RequestID)
 			return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Error:  "Something wrong happened, could not pair the device",
-				Status: "error",
+				Status: models.PairingStatusError,
 			})
 		}
 		slog.Info("pairing request CR created", "request_id", req.RequestID)
@@ -70,7 +70,7 @@ func (h *PairingRequestsHandler) HandlePairDevice(c *echo.Context) error {
 
 	// Return success response
 	return c.JSON(http.StatusOK, models.PairingDeviceResponse{
-		Status:  "success",
+		Status:  models.PairingStatusSuccess,
 		Message: "pairing request received",
 	})
 }
@@ -83,7 +83,7 @@ func (h *PairingRequestsHandler) HandleGetPairingStatus(c *echo.Context) error {
 		slog.Warn("missing request ID in path parameter")
 		return c.JSON(http.StatusNotFound, models.ErrorResponse{
 			Error:  "request ID is required",
-			Status: "error",
+			Status: models.PairingStatusError,
 		})
 	}
 
@@ -92,7 +92,7 @@ func (h *PairingRequestsHandler) HandleGetPairingStatus(c *echo.Context) error {
 		slog.Warn("empty request ID in path parameter")
 		return c.JSON(http.StatusNotFound, models.ErrorResponse{
 			Error:  "request ID cannot be empty",
-			Status: "error",
+			Status: models.PairingStatusError,
 		})
 	}
 
@@ -104,17 +104,17 @@ func (h *PairingRequestsHandler) HandleGetPairingStatus(c *echo.Context) error {
 			slog.Error("failed to get pairing request status", "error", err, "request_id", requestID)
 			return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Error:  "Something wrong happened, could not get pairing status",
-				Status: "error",
+				Status: models.PairingStatusError,
 			})
 		}
 		if ready {
 			return c.JSON(http.StatusOK, models.PairingStatusResponse{
-				Status: "ready",
+				Status: models.PairingStatusReady,
 			})
 		}
 	}
 
 	return c.JSON(http.StatusAccepted, models.PairingStatusResponse{
-		Status: "pending",
+		Status: models.PairingStatusPending,
 	})
 }
