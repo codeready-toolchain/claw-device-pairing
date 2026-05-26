@@ -96,6 +96,7 @@ function App() {
 
         console.log('Pairing request submitted successfully, starting status polling')
         setPairingStatus('progressing')
+        setApprovalStatus('pending')
       } catch (err) {
         console.error('Pairing submission failed:', err)
         if (err.name === 'AbortError') {
@@ -115,7 +116,6 @@ function App() {
     if (!pairingRequestId || pairingStatus !== 'progressing') return
 
 
-    setApprovalStatus('pending')
 
     const startTime = Date.now()
     const POLL_INTERVAL = 1000 // 1 second
@@ -152,7 +152,6 @@ function App() {
         setPairingStatus('error')
         setApprovalStatus('error')
         setPairingErrorMessage('Network error while checking status')
-        setIsPolling(false)
         return true
       }
     }
@@ -165,7 +164,6 @@ function App() {
         setPairingStatus('error')
         setApprovalStatus('timeout')
         setPairingErrorMessage('Pairing approval timed out')
-        setIsPolling(false)
         clearInterval(pollInterval)
         return
       }
@@ -179,7 +177,6 @@ function App() {
     // Cleanup on unmount
     return () => {
       clearInterval(pollInterval)
-      setIsPolling(false)
     }
   }, [pairingRequestId, pairingStatus])
 
