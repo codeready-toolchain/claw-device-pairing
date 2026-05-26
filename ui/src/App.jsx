@@ -8,7 +8,7 @@ function App() {
   const [pairingRequestId, setPairingRequestId] = useState(null)
   const [pairingErrorMessage, setPairingErrorMessage] = useState(null)
   const [approvalStatus, setApprovalStatus] = useState('idle')
-  const [isPolling, setIsPolling] = useState(false)
+
 
   useEffect(() => {
     const runHandshake = async () => {
@@ -96,6 +96,7 @@ function App() {
 
         console.log('Pairing request submitted successfully, starting status polling')
         setPairingStatus('progressing')
+        setApprovalStatus('pending')
       } catch (err) {
         console.error('Pairing submission failed:', err)
         if (err.name === 'AbortError') {
@@ -114,8 +115,7 @@ function App() {
   useEffect(() => {
     if (!pairingRequestId || pairingStatus !== 'progressing') return
 
-    setIsPolling(true)
-    setApprovalStatus('pending')
+
 
     const startTime = Date.now()
     const POLL_INTERVAL = 1000 // 1 second
@@ -132,7 +132,7 @@ function App() {
           console.log('Pairing approved')
           setPairingStatus('success')
           setApprovalStatus('approved')
-          setIsPolling(false)
+
           return true
         } else if (response.status === 202) {
           // Still pending
@@ -144,7 +144,7 @@ function App() {
           setPairingStatus('error')
           setApprovalStatus('error')
           setPairingErrorMessage('Failed to check pairing status')
-          setIsPolling(false)
+
           return true
         }
       } catch (err) {
@@ -152,7 +152,6 @@ function App() {
         setPairingStatus('error')
         setApprovalStatus('error')
         setPairingErrorMessage('Network error while checking status')
-        setIsPolling(false)
         return true
       }
     }
@@ -165,7 +164,6 @@ function App() {
         setPairingStatus('error')
         setApprovalStatus('timeout')
         setPairingErrorMessage('Pairing approval timed out')
-        setIsPolling(false)
         clearInterval(pollInterval)
         return
       }
@@ -179,7 +177,6 @@ function App() {
     // Cleanup on unmount
     return () => {
       clearInterval(pollInterval)
-      setIsPolling(false)
     }
   }, [pairingRequestId, pairingStatus])
 
