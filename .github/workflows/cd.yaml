@@ -1,0 +1,39 @@
+name: CD
+
+on:
+  push:
+    branches: [master]
+
+env:
+  IMAGE_REGISTRY: quay.io/codeready-toolchain
+  IMAGE_NAME: claw-device-pairing
+
+jobs:
+  build-and-push:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT }}
+          password: ${{ secrets.QUAY_TOKEN }}
+
+      - name: Build image
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ github.sha }} latest
+          containerfiles: ./Containerfile
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+
+      - uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ${{ env.IMAGE_REGISTRY }}
