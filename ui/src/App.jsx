@@ -42,6 +42,8 @@ function App() {
           gatewayUrl
         })
         setHandshakeStatus('success')
+        setPairingStatus('success')
+        setApprovalStatus('approved')
       } catch (err) {
         console.error('Handshake error:', err.code, err.message, err)
 
