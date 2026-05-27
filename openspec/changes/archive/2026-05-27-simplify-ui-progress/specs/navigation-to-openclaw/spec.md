@@ -1,8 +1,14 @@
-## Purpose
+## REMOVED Requirements
 
-This specification defines the browser navigation behavior for transitioning from the device pairing interface to the main OpenClaw application. It establishes automatic redirect logic and URL construction requirements for seamless navigation after successful pairing approval.
+### Requirement: Display Navigation Button
+**Reason**: Replaced by automatic redirect on pairing approval. The "Go to OpenClaw" button is no longer needed.
+**Migration**: Navigation is now triggered automatically via a useEffect when approvalStatus becomes 'approved'.
 
-## Requirements
+### Requirement: Enable Button on Approval
+**Reason**: No button exists to enable. Navigation is automatic.
+**Migration**: The approval state still triggers navigation, but via auto-redirect instead of button enablement.
+
+## MODIFIED Requirements
 
 ### Requirement: Navigate to OpenClaw
 The system SHALL automatically navigate to OpenClaw when pairing is approved, without user interaction.

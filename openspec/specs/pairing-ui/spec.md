@@ -25,15 +25,15 @@ The application SHALL display a single Patternfly Card component as the main UI 
 - **THEN** the card shows a CardTitle with text "Device Pairing"
 
 ### Requirement: Pairing Status Display
-The card body SHALL display a progress stepper showing the stages of device pairing.
+The card body SHALL display a Spinner with a status label showing the current stage of device pairing.
 
-#### Scenario: Stepper replaces simple message
+#### Scenario: Spinner replaces stepper
 - **WHEN** the application renders
-- **THEN** the card body displays a Stepper component instead of just "Pairing device..." text
+- **THEN** the card body displays a Spinner component with a status label instead of a ProgressStepper
 
-#### Scenario: Loading spinner is removed
+#### Scenario: No navigation button
 - **WHEN** the card body is displayed
-- **THEN** no Spinner component is shown (replaced by the Stepper)
+- **THEN** no "Go to OpenClaw" button is shown
 
 ### Requirement: Patternfly Styling
 The application SHALL import and apply Patternfly base CSS styles.
@@ -120,19 +120,3 @@ The application SHALL use React state to control UI rendering based on handshake
 #### Scenario: State updates trigger re-renders
 - **WHEN** handshake state changes
 - **THEN** the UI re-renders to reflect the new state
-
-### Requirement: Navigation Button Component
-The card body SHALL include a "Go to OpenClaw" button below the progress stepper.
-
-#### Scenario: Button is rendered
-- **WHEN** the application renders
-- **THEN** a Button component with text "Go to OpenClaw" is displayed below the ProgressStepper
-
-#### Scenario: Button uses Patternfly component
-- **WHEN** the navigation button is rendered
-- **THEN** it uses the Patternfly Button component from `@patternfly/react-core`
-
-#### Scenario: Button disabled state is controlled
-- **WHEN** the button is rendered
-- **THEN** its disabled state is controlled by React state based on pairing approval status
-
