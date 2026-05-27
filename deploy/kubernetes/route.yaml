@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: claw-device-pairing
+spec:
+  to:
+    kind: Service
+    name: claw-device-pairing
+  port:
+    targetPort: oauth-proxy
+  tls:
+    termination: Reencrypt
+    insecureEdgeTerminationPolicy: Redirect
