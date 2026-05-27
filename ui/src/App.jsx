@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, CardTitle, CardBody, ProgressStepper, ProgressStep, Button } from '@patternfly/react-core'
+import { Card, CardTitle, CardBody, Spinner } from '@patternfly/react-core'
 import { performHandshake } from './handshake'
 
 function App() {
@@ -200,39 +200,28 @@ function App() {
     window.location.href = newUrl
   }
 
+  // Auto-redirect when pairing is approved
+  useEffect(() => {
+    if (approvalStatus === 'approved') {
+      navigateToOpenClaw()
+    }
+  }, [approvalStatus])
+
+  const isError = handshakeStatus === 'error' || pairingStatus === 'error'
+
+  const statusLabel = (() => {
+    if (isError) return pairingErrorMessage || 'An error occurred'
+    if (approvalStatus === 'approved') return 'Redirecting to OpenClaw...'
+    if (pairingStatus === 'pending' || pairingStatus === 'progressing') return 'Pairing device with OpenClaw...'
+    return 'Generating device id...'
+  })()
+
   return (
     <Card>
       <CardTitle>Device Pairing</CardTitle>
-      <CardBody>
-        <ProgressStepper isVertical={true}>
-          <ProgressStep
-            id="step-1"
-            titleId="step-1-title"
-            variant={handshakeStatus === 'success' ? 'success' : handshakeStatus === 'error' ? 'danger' : undefined}
-          >
-            Generate device id
-          </ProgressStep>
-          <ProgressStep
-            id="step-2"
-            titleId="step-2-title"
-            variant={
-              pairingStatus === 'success' ? 'success' :
-              pairingStatus === 'error' ? 'danger' :
-              pairingStatus === 'pending' || pairingStatus === 'progressing' ? 'info' :
-              undefined
-            }
-            description={pairingStatus === 'error' && pairingErrorMessage ? pairingErrorMessage : undefined}
-          >
-            Pair device with OpenClaw
-          </ProgressStep>
-        </ProgressStepper>
-        <Button
-          onClick={navigateToOpenClaw}
-          isDisabled={approvalStatus !== 'approved'}
-          style={{ marginTop: '20px' }}
-        >
-          Go to OpenClaw
-        </Button>
+      <CardBody style={{ textAlign: 'center' }}>
+        {!isError && <Spinner aria-label="Loading" />}
+        <p style={{ marginTop: '16px' }}>{statusLabel}</p>
       </CardBody>
     </Card>
   )
