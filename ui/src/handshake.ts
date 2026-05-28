@@ -265,7 +265,8 @@ export type HandshakeResult = {
 export async function performHandshake(params: ConnectParams): Promise<HandshakeResult> {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(params.gatewayUrl);
-
+    console.log('Handshake with platform:', params.platform)
+    console.log('Handshake with gatewayUrl:', params.gatewayUrl)
     ws.addEventListener("error", (err) => {
       reject(new Error(`WebSocket error: ${err}`));
     });
