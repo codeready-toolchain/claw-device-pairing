@@ -36,7 +36,7 @@ function App() {
             'operator.read',
             'operator.write'
           ],
-          platform: 'MacIntel',
+          platform: navigator.platform ?? 'web',
           deviceFamily: 'webchat',
           token,
           gatewayUrl
